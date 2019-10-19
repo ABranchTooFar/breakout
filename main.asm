@@ -6,17 +6,34 @@ MIRRORING = %0001   ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
 ; Macros
 
-.MACRO latchPalette
+.MACRO LatchNametable
+; TODO: Comment this!
+  LDA $2002
+  LDA #$20
+  STA $2006
+  LDA #$00
+  STA $2006
+.ENDM
+
+.MACRO LatchAttributeTable
 ; TODO: Comment this!
   LDA $2002
   LDA #$3F
   STA $2006
   LDA #$00
   STA $2006
-  LDX #$00
 .ENDM
 
-.MACRO loadPalette
+.MACRO LatchPalette
+; TODO: Comment this!
+  LDA $2002
+  LDA #$3F
+  STA $2006
+  LDA #$00
+  STA $2006
+.ENDM
+
+.MACRO LoadPalette
   LDA #$22
   STA $2007
   LDA #$16
@@ -108,23 +125,62 @@ Reset:
 
   ; PPU is ready now!
 
+  ; Load the nametable
+  LatchNametable
+
+  ; Top row of blocks
+  LDY #$40
+  LDA #$47
+-
+  STA $2007
+  DEY
+  BNE -
+
+  LDY #$1E
+--
+  ; Left wall background
+  LDA #$47
+  STA $2007
+  LDA #$47
+  STA $2007
+
+  ; Sky background index
+  LDX #$1C
+-
+  LDA #$24
+  STA $2007
+  DEX
+  BNE -
+
+  ; Right wall background
+  LDA #$47
+  STA $2007
+  LDA #$47
+  STA $2007
+
+  DEY
+  BNE --
+
+  ; Load the attribute table
+
+
   ; Load the palettes
-  latchPalette
+  LatchPalette
 
   ; Sprite palette(?)
-  loadPalette
-  loadPalette
-  loadPalette
-  loadPalette
+  LoadPalette
+  LoadPalette
+  LoadPalette
+  LoadPalette
 
   ; Background palette(?)
-  loadPalette
-  loadPalette
-  loadPalette
-  loadPalette
+  LoadPalette
+  LoadPalette
+  LoadPalette
+  LoadPalette
 
   ; TODO
-  ; Make this nicer
+  ; Move this to sprite 1 (because I will need sprite 0 for interrupt)
   ; Adds a fireball sprite to the screen
   LDA #$64
   STA $0200
@@ -151,11 +207,11 @@ HideTiles:
   BNE HideTiles
 
   ; Enable NMI, sprites from pattern table 0
-  LDA #%10000000
+  LDA #%10010000
   STA $2000
 
   ; No intensify, enable sprites
-  LDA #%00010110
+  LDA #%00011110
   STA $2001
 
   ; Initiate variable values
@@ -178,6 +234,7 @@ MainLoop:
   ; Vertical
   LDA $0200
   ; Bounce off the top of the screen
+  CMP #$0E
   BNE +
   LDX #$01
   STX BallVSpeed
@@ -196,11 +253,12 @@ MainLoop:
   ; Horizontal
   LDA $0203
   ; Bounce off the left side of the screen
+  CMP #$10
   BNE +
   LDX #$01
   STX BallHSpeed
 +
-  CMP #$F9
+  CMP #$E8
   BNE +
   LDX #$FF
   STX BallHSpeed
@@ -230,6 +288,10 @@ NMI:
   STA $2003   ; Set the low byte of the RAM address
   LDA #$02
   STA $4014
+
+  ; Set the scroll register to zero
+  LDA #$00
+  STA $2005
 
   RTI
 

@@ -58,8 +58,9 @@ MIRRORING = %0001   ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 ; First bit is the new frame flag
 Flags      .DSB 1
 
-BallHSpeed .DSB 1
-BallVSpeed .DSB 1
+  ; TODO: find a work-around (it will cause issues with functions in the ball.asm file!)
+  ; Include this file here so that the variables are in the correct location
+  .INCLUDE "ball.asm"
 
 .ENDE
 
@@ -179,17 +180,7 @@ Reset:
   LoadPalette
   LoadPalette
 
-  ; TODO
-  ; Move this to sprite 1 (because I will need sprite 0 for interrupt)
-  ; Adds a fireball sprite to the screen
-  LDA #$64
-  STA $0200
-  LDA #$65
-  STA $0201
-  LDA #$01
-  STA $0202
-  LDA #$64
-  STA $0203
+  InitBallSprite
 
   ; Hide all unused sprites
   LDA #$FF
@@ -214,12 +205,7 @@ HideTiles:
   LDA #%00011110
   STA $2001
 
-  ; Initiate variable values
-  LDA #$01
-  STA BallVSpeed
-
-  LDA #$FF
-  STA BallHSpeed
+  InitBallVariables
 
 
 MainLoop:
@@ -230,43 +216,31 @@ MainLoop:
   BEQ MainLoop
   ; If there is a "new frame"
 
-  ; Ball collision with the sides of the screen
-  ; Vertical
-  LDA $0200
-  ; Bounce off the top of the screen
-  CMP #$0E
-  BNE +
-  LDX #$01
-  STX BallVSpeed
-+
-  ; Bounce off the bottom of the screen
-  CMP #$E6
-  BNE +
-  LDX #$FF
-  STX BallVSpeed
-+
-  ; Change ball y-position
-  CLC
-  ADC BallVSpeed
-  STA $0200
+  BallCheckCollisions
 
-  ; Horizontal
-  LDA $0203
-  ; Bounce off the left side of the screen
+
+  LDA BallAnimationTimer
+  CMP #$08
+  BNE +
+  LDA #$64
+  STA $0201
+  ; Flip the sprites
+  LDA $0202
+  EOR #%11000000
+  STA $0202
++
   CMP #$10
   BNE +
-  LDX #$01
-  STX BallHSpeed
+  LDA #$65
+  STA $0201
+  ; Reset the timer
+  LDA #$00
+  STA BallAnimationTimer
 +
-  CMP #$E8
-  BNE +
-  LDX #$FF
-  STX BallHSpeed
-+
-  ; Change ball x-position
+  LDA BallAnimationTimer
   CLC
-  ADC BallHSpeed
-  STA $0203
+  ADC #$01
+  STA BallAnimationTimer
 
   ; TODO
   ; Make this more robust

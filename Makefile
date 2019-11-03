@@ -1,5 +1,5 @@
-game: main.asm
+game: *.asm
 	asm6 main.asm breakout.nes
 
 clean:
-	rm break-out.nes
+	rm breakout.nes

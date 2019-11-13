@@ -15,23 +15,22 @@ BallAnimationTimer .DSB 1
 .ENDM
 
 .MACRO InitBallSprite
-  ; TODO
   ; Move this to sprite 1 (because I will need sprite 0 for interrupt)
   ; Adds a fireball sprite to the screen
   LDA #$64
-  STA $0200
+  STA $0204
   LDA #$65
-  STA $0201
+  STA $0205
   LDA #$01
-  STA $0202
+  STA $0206
   LDA #$64
-  STA $0203
+  STA $0207
 .ENDM
 
 .MACRO BallCheckCollisions
   ; Ball collision with the sides of the screen
   ; Vertical
-  LDA $0200
+  LDA $0204
   ; Bounce off the top of the screen
   CMP #$0E
   BNE +
@@ -47,10 +46,10 @@ BallAnimationTimer .DSB 1
   ; Change ball y-position
   CLC
   ADC BallVSpeed
-  STA $0200
+  STA $0204
 
   ; Horizontal
-  LDA $0203
+  LDA $0207
   ; Bounce off the left side of the screen
   CMP #$10
   BNE +
@@ -65,5 +64,5 @@ BallAnimationTimer .DSB 1
   ; Change ball x-position
   CLC
   ADC BallHSpeed
-  STA $0203
+  STA $0207
 .ENDM

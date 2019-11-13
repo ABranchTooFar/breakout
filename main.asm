@@ -180,8 +180,6 @@ Reset:
   LoadPalette
   LoadPalette
 
-  InitBallSprite
-
   ; Hide all unused sprites
   LDA #$FF
   LDX #$00
@@ -196,6 +194,16 @@ HideTiles:
   STA $0200, x
   ; Stop when x loops back to 0
   BNE HideTiles
+
+
+  InitBallSprite
+
+  ; DEBUG
+  ; Add a sprite-0 for testing
+  LDA #$64
+  STA $0200
+  LDA #$08
+  STA $0203
 
   ; Enable NMI, sprites from pattern table 0
   LDA #%10010000
@@ -216,6 +224,11 @@ MainLoop:
   BEQ MainLoop
   ; If there is a "new frame"
 
+  ; Set the scroll registers to zero
+  LDA #$00
+  STA $2005
+  STA $2005
+
   BallCheckCollisions
 
 
@@ -223,16 +236,16 @@ MainLoop:
   CMP #$08
   BNE +
   LDA #$64
-  STA $0201
+  STA $0205
   ; Flip the sprites
-  LDA $0202
+  LDA $0206
   EOR #%11000000
-  STA $0202
+  STA $0206
 +
   CMP #$10
   BNE +
   LDA #$65
-  STA $0201
+  STA $0205
   ; Reset the timer
   LDA #$00
   STA BallAnimationTimer
@@ -241,6 +254,24 @@ MainLoop:
   CLC
   ADC #$01
   STA BallAnimationTimer
+
+  ; Wait for the end of the h-blank???
+  LDA #%01000000
+-
+  BIT $2002
+  BNE -
+
+  ; Wait for the sprite-0 hit
+  LDA #%01000000
+-
+  BIT $2002
+  BEQ -
+
+  ; Set the scroll registers to zero
+  LDA #$10
+  STA $2005
+  LDA #$00
+  STA $2005
 
   ; TODO
   ; Make this more robust
@@ -253,9 +284,7 @@ MainLoop:
 NMI:
   ; vblank interrupt
 
-  ; Set the "new frame" flag
-  LDA #%00000001
-  STA Flags
+
 
   ; Do the DMA transfer to the PPU
   LDA #$00
@@ -263,9 +292,9 @@ NMI:
   LDA #$02
   STA $4014
 
-  ; Set the scroll register to zero
-  LDA #$00
-  STA $2005
+  ; Set the "new frame" flag
+  LDA #%00000001
+  STA Flags
 
   RTI
 

@@ -235,26 +235,12 @@ MainLoop:
   BEQ MainLoop
   ; If there is a "new frame"
 
-<<<<<<< Updated upstream
   ; Set the scroll registers to zero
   LDA #$00
   STA $2005
   STA $2005
-=======
-  JSR ReadControllers
-
-  LDA #%00000001
-  BIT Controller1
-  BEQ +
-  LDA PaddlePosition
-  CLC
-  ADC #$01
-  STA PaddlePosition
-+
->>>>>>> Stashed changes
 
   BallCheckCollisions
-
 
   LDA BallAnimationTimer
   CMP #$08
@@ -308,7 +294,17 @@ MainLoop:
 NMI:
   ; vblank interrupt
 
-
+  ; Read the controller input
+;  JSR ReadControllers
+;
+;  LDA #%00000001
+;  BIT Controller1
+;  BEQ +
+;  LDA PaddlePosition
+;  CLC
+;  ADC #$01
+;  STA PaddlePosition
+;+
 
   ; Do the DMA transfer to the PPU
   LDA #$00

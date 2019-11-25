@@ -1,0 +1,1 @@
+NUMBER_OF_PLAYERS     .EQU 1

@@ -3,6 +3,11 @@
 PRG_COUNT = 1       ; 1 = 16KB, 2 = 32KB
 MIRRORING = %0001   ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
+CONTROLLER_REGISTER_1 .EQU #$4016
+CONTROLLER_REGISTER_2 .EQU #$4017
+
+.INCLUDE "config.asm"
+
 
 ; Macros
 
@@ -53,6 +58,12 @@ MIRRORING = %0001   ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
 ;MyVariable0 .dsb 1
 ;MyVariable1 .dsb 3
+
+PaddlePosition .DSB 1
+
+.INCLUDE "variables.asm"
+
+.INCLUDE "subroutines.asm"
 
 ; TODO
 ; First bit is the new frame flag
@@ -224,10 +235,23 @@ MainLoop:
   BEQ MainLoop
   ; If there is a "new frame"
 
+<<<<<<< Updated upstream
   ; Set the scroll registers to zero
   LDA #$00
   STA $2005
   STA $2005
+=======
+  JSR ReadControllers
+
+  LDA #%00000001
+  BIT Controller1
+  BEQ +
+  LDA PaddlePosition
+  CLC
+  ADC #$01
+  STA PaddlePosition
++
+>>>>>>> Stashed changes
 
   BallCheckCollisions
 

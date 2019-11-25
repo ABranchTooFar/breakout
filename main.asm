@@ -63,8 +63,6 @@ PaddlePosition .DSB 1
 
 .INCLUDE "variables.asm"
 
-.INCLUDE "subroutines.asm"
-
 ; TODO
 ; First bit is the new frame flag
 Flags      .DSB 1
@@ -96,6 +94,8 @@ Flags      .DSB 1
 ; Program Bank(s)
 
 .BASE $10000-(PRG_COUNT*$4000)
+
+.INCLUDE "subroutines.asm"
 
 Reset:
   ; Initialization code
@@ -278,7 +278,8 @@ MainLoop:
   BEQ -
 
   ; Set the scroll registers to zero
-  LDA #$10
+  ;LDA #$10
+  LDA PaddlePosition
   STA $2005
   LDA #$00
   STA $2005
@@ -295,16 +296,16 @@ NMI:
   ; vblank interrupt
 
   ; Read the controller input
-;  JSR ReadControllers
-;
-;  LDA #%00000001
-;  BIT Controller1
-;  BEQ +
-;  LDA PaddlePosition
-;  CLC
-;  ADC #$01
-;  STA PaddlePosition
-;+
+  JSR ReadControllers
+
+  LDA #%00000001
+  BIT Controller1
+  BEQ +
+  LDA PaddlePosition
+  CLC
+  ADC #$01
+  STA PaddlePosition
++
 
   ; Do the DMA transfer to the PPU
   LDA #$00

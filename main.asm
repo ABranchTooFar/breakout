@@ -211,7 +211,7 @@ HideTiles:
 
   ; DEBUG
   ; Add a sprite-0 for testing
-  LDA #$64
+  LDA #$DD
   STA $0200
   LDA #$08
   STA $0203
@@ -299,6 +299,15 @@ NMI:
   JSR ReadControllers
 
   LDA #%00000001
+  BIT Controller1
+  BEQ +
+  LDA PaddlePosition
+  SEC
+  SBC #$01
+  STA PaddlePosition
++
+
+  LDA #%00000010
   BIT Controller1
   BEQ +
   LDA PaddlePosition

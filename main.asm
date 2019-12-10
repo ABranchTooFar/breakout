@@ -148,7 +148,7 @@ Reset:
   DEY
   BNE -
 
-  LDY #$1E
+  LDY #$19
 --
   ; Left wall background
   LDA #$47
@@ -173,8 +173,16 @@ Reset:
   DEY
   BNE --
 
-  ; Load the attribute table
+  ; Fill 2nd table with sky
+  ;LDY #$01
+  ;LDA #$24
+;-
+  ;STA $2007
+  ;DEY
+  ;BNE -
 
+
+  ; Load the attribute table
 
   ; Load the palettes
   LatchPalette
@@ -211,9 +219,11 @@ HideTiles:
 
   ; DEBUG
   ; Add a sprite-0 for testing
-  LDA #$DD
+  LDA #$D7
   STA $0200
-  LDA #$08
+  LDA #$86
+  STA $0201
+  LDA #$00
   STA $0203
 
   ; Enable NMI, sprites from pattern table 0

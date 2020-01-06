@@ -173,14 +173,47 @@ Reset:
   DEY
   BNE --
 
-  ; Fill 2nd table with sky
-  ;LDY #$01
-  ;LDA #$24
-;-
-  ;STA $2007
-  ;DEY
-  ;BNE -
 
+  ; Non-empty background tile **FOR SPRITE-0 HIT!**
+  STA $2007
+
+
+  ; Fill 2nd table with sky
+  LDA #$24
+  i=0
+  REPT 96
+    STA $2007
+    i=i+1
+  ENDR
+
+  ; 2760 is address of bottom of 2nd page
+  ; 0x60 tiles need to be written
+  ; Set the address
+  LDA #$27
+  STA $2006
+  LDA #$60
+  STA $2006
+
+  LDA #$24
+  i=0
+  REPT 96
+    STA $2007
+    i=i+1
+  ENDR
+
+  ; Draw the Paddle
+  ; Start address is $2B9E
+  LDA #$2B
+  STA $2006
+  LDA #$9C
+  STA $2006 
+
+  LDA #$93
+  i=0
+  REPT 4
+    STA $2007
+    i=i+1
+  ENDR 
 
   ; Load the attribute table
 
@@ -313,7 +346,7 @@ NMI:
   BEQ +
   LDA PaddlePosition
   SEC
-  SBC #$01
+  SBC #$03
   STA PaddlePosition
 +
 
@@ -322,7 +355,7 @@ NMI:
   BEQ +
   LDA PaddlePosition
   CLC
-  ADC #$01
+  ADC #$03
   STA PaddlePosition
 +
 
